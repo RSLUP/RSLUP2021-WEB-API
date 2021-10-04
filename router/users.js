@@ -1,5 +1,5 @@
 const express = require('express');
-
+const { loggedIn, adminOnly } = require("../helpers/auth.middleware");
 const { userSignUp, userLogin, createUser, getUsers, getUser, updateUser, deleteUser } = require('../controllers/users');
 
 const router = express.Router();
@@ -11,7 +11,7 @@ const router = express.Router();
  *     summary: User sign up.
  *     description: User sign up.
 */
-router.route('/signup').post(userSignUp);
+router.post('/signup', userSignUp);
 
 /**
  * @swagger
@@ -20,7 +20,7 @@ router.route('/signup').post(userSignUp);
  *     summary: User login.
  *     description: User login.
 */
-router.route('/login').post(userLogin);
+router.post('/login', userLogin);
 
 /**
  * @swagger
@@ -29,7 +29,7 @@ router.route('/login').post(userLogin);
  *     summary: Create a user.
  *     description: Retrieve a list of users.
 */
-router.route('/').post(createUser);
+router.post('/', loggedIn, adminOnly, createUser);
 
 /**
  * @swagger
@@ -38,7 +38,7 @@ router.route('/').post(createUser);
  *     summary: Retrieve a user.
  *     description: Retrieve a user.
 */
-router.route('/:id').get(getUser);
+router.get('/:id', loggedIn, getUser);
 
 /**
  * @swagger
@@ -47,7 +47,7 @@ router.route('/:id').get(getUser);
  *     summary: Retrieve a list of users.
  *     description: Retrieve a list of users.
 */
-router.route('/').get(getUsers);
+router.get('/', loggedIn, adminOnly, getUsers);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.route('/').get(getUsers);
  *     summary: Update a user.
  *     description: Update a user.
 */
-router.route('/:id').put(updateUser);
+router.put('/:id', loggedIn, updateUser);
 
 /**
  * @swagger
@@ -65,6 +65,6 @@ router.route('/:id').put(updateUser);
  *     summary: Delete a user.
  *     description: Delete a user.
 */
-router.route('/:id').delete(deleteUser);
+router.delete('/:id', loggedIn, adminOnly, deleteUser);
 
 module.exports = router;
