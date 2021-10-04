@@ -1,5 +1,11 @@
 const snakeKeys = require('snakecase-keys');
+const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv');
 const User = require('../models/User');
+
+// load envs
+dotenv.config({ path: './config/config.env' });
 
 let users = [];
 
@@ -10,7 +16,9 @@ let users = [];
 // --signup POST
 exports.userSignUp = async (req, res, next) => {
     try {
+        const salt = await bcrypt.genSalt(10);
         req.body.user_type = "USER";
+        req.body.password = await bcrypt.hash(req.body.password, salt);
         const newUser = await User.create({ ...snakeKeys(req.body) });
         res.status(201).json(newUser);
     } catch (error) {
@@ -31,12 +39,25 @@ exports.userSignUp = async (req, res, next) => {
 
 // --login POST
 exports.userLogin = async (req, res, next) => {
-    try {
-        const newUser = await User.create({ ...snakeKeys(req.body) });
-        res.status(201).json(newUser);
-    } catch (error) {
-        let errors = [];
+    let errors = [];
 
+    try {
+        // Check user exist
+        const user = await User.findOne({ where: { email: req.body.email } });
+        if (user) {
+            const validPassword = await bcrypt.compare(req.body.password, user.password);
+            if (!validPassword) {
+                return res.status(401).json({ error: "Invalid Email or Password" });
+            }
+
+            // Create and assign token
+            const token = jwt.sign({email: user.email, user_type: user.user_type}, process.env.TOKEN_SECRET);
+            res.header("auth-token", token).send({"token": token});
+            // res.send("Logged IN");
+        } else {
+            return res.status(401).json({ error: "Invalid Email or Password" });
+        }
+    } catch (error) {
         switch (error.name) {
             case 'SequelizeValidationError':
                 errors = error.errors.map((e) => e.message);
@@ -51,9 +72,10 @@ exports.userLogin = async (req, res, next) => {
 };
 
 // --create POST
-exports.userSignUp = async (req, res, next) => {
+exports.createUser = async (req, res, next) => {
     try {
-        req.body.user_type = "USER";
+        const salt = await bcrypt.genSalt(10);
+        req.body.password = await bcrypt.hash(req.body.password, salt);
         const newUser = await User.create({ ...snakeKeys(req.body) });
         res.status(201).json(newUser);
     } catch (error) {
