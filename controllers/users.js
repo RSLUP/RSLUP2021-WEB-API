@@ -7,6 +7,71 @@ let users = [];
 // pascal case: FirstName
 // snake case: first_name
 
+// --signup POST
+exports.userSignUp = async (req, res, next) => {
+    try {
+        req.body.user_type = "USER";
+        const newUser = await User.create({ ...snakeKeys(req.body) });
+        res.status(201).json(newUser);
+    } catch (error) {
+        let errors = [];
+
+        switch (error.name) {
+            case 'SequelizeValidationError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+            case 'SequelizeUniqueConstraintError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+        }
+
+        res.status(500).json({ error });
+    }
+};
+
+// --login POST
+exports.userLogin = async (req, res, next) => {
+    try {
+        const newUser = await User.create({ ...snakeKeys(req.body) });
+        res.status(201).json(newUser);
+    } catch (error) {
+        let errors = [];
+
+        switch (error.name) {
+            case 'SequelizeValidationError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+            case 'SequelizeUniqueConstraintError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+        }
+
+        res.status(500).json({ error });
+    }
+};
+
+// --create POST
+exports.userSignUp = async (req, res, next) => {
+    try {
+        req.body.user_type = "USER";
+        const newUser = await User.create({ ...snakeKeys(req.body) });
+        res.status(201).json(newUser);
+    } catch (error) {
+        let errors = [];
+
+        switch (error.name) {
+            case 'SequelizeValidationError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+            case 'SequelizeUniqueConstraintError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+        }
+
+        res.status(500).json({ error });
+    }
+};
+
 // --create POST
 exports.createUser = async (req, res, next) => {
     try {
