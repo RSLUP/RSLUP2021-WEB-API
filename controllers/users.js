@@ -44,6 +44,7 @@ exports.userLogin = async (req, res, next) => {
     try {
         // Check user exist
         const user = await User.findOne({ where: { email: req.body.email } });
+        console.log(user)
         if (user) {
             const validPassword = await bcrypt.compare(req.body.password, user.password);
             if (!validPassword) {
@@ -58,6 +59,7 @@ exports.userLogin = async (req, res, next) => {
             return res.status(401).json({ error: "Invalid Email or Password" });
         }
     } catch (error) {
+        console.log(error)
         switch (error.name) {
             case 'SequelizeValidationError':
                 errors = error.errors.map((e) => e.message);
