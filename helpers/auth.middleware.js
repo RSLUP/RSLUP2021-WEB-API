@@ -7,7 +7,7 @@ dotenv.config({ path: './config/config.env' });
 
 exports.loggedIn = async function (req, res, next) {
     let token = req.header('Authorization');
-    if (!token) return res.status(401).send("No Token");
+    if (!token) return res.status(401).send({ error: "No Token" });
 
     try {
         if (token.startsWith('Bearer ')) {
@@ -24,11 +24,11 @@ exports.loggedIn = async function (req, res, next) {
                 // User cannot change user_type his/her own user_type
                 req.body.user_type = "USER";
                 if (req_url.includes("users/:id") && parseInt(req.params.id) !== user.id){
-                    return res.status(403).send("Forbidden");
+                    return res.status(403).send({ error: "Forbidden" });
                 }
             }
         } else {
-            return res.status(401).send("Invalid Token");
+            return res.status(401).send({ error: "Invalid Token" });
         }
 
         req.user = verified;
@@ -44,13 +44,13 @@ exports.loggedIn = async function (req, res, next) {
                 return res.status(400).json({ error: errors });
         }
 
-        res.status(401).send("Invalid Token");
+        res.status(401).send({ error: "Invalid Token" });
     }
 }
 
 exports.adminOnly = async function (req, res, next) {
     if (req.user.user_type !== "ADMIN") {
-        return res.status(403).send("Forbidden");
+        return res.status(403).send({ error: "Forbidden" });
     }  
     next();
 }
