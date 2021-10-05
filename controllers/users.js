@@ -52,7 +52,14 @@ exports.userLogin = async (req, res, next) => {
 
             // Create and assign token
             const token = jwt.sign({email: user.email, user_type: user.user_type}, process.env.TOKEN_SECRET);
-            res.header("auth-token", token).send({"token": token});
+            res.header("auth-token", token).send({
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "gender": user.gender,
+                "email": user.email,
+                "user_type": user.user_type,
+                "token": token
+            });
             // res.send("Logged IN");
         } else {
             return res.status(401).json({ error: "Invalid Email or Password" });
@@ -76,27 +83,6 @@ exports.createUser = async (req, res, next) => {
     try {
         const salt = await bcrypt.genSalt(10);
         req.body.password = await bcrypt.hash(req.body.password, salt);
-        const newUser = await User.create({ ...snakeKeys(req.body) });
-        res.status(201).json(newUser);
-    } catch (error) {
-        let errors = [];
-
-        switch (error.name) {
-            case 'SequelizeValidationError':
-                errors = error.errors.map((e) => e.message);
-                return res.status(400).json({ error: errors });
-            case 'SequelizeUniqueConstraintError':
-                errors = error.errors.map((e) => e.message);
-                return res.status(400).json({ error: errors });
-        }
-
-        res.status(500).json({ error });
-    }
-};
-
-// --create POST
-exports.createUser = async (req, res, next) => {
-    try {
         const newUser = await User.create({ ...snakeKeys(req.body) });
         res.status(201).json(newUser);
     } catch (error) {
