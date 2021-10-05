@@ -33,7 +33,7 @@ exports.userSignUp = async (req, res, next) => {
                 return res.status(400).json({ error: errors });
         }
 
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -53,8 +53,14 @@ exports.userLogin = async (req, res, next) => {
 
             // Create and assign token
             const token = jwt.sign({email: user.email, user_type: user.user_type}, process.env.TOKEN_SECRET);
-            res.header("auth-token", token).send({"token": token});
-            // res.send("Logged IN");
+            res.header("auth-token", token).send({
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "gender": user.gender,
+                "email": user.email,
+                "user_type": user.user_type,
+                "token": token
+            });
         } else {
             return res.status(401).json({ error: "Invalid Email or Password" });
         }
@@ -69,7 +75,7 @@ exports.userLogin = async (req, res, next) => {
                 return res.status(400).json({ error: errors });
         }
 
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -92,28 +98,7 @@ exports.createUser = async (req, res, next) => {
                 return res.status(400).json({ error: errors });
         }
 
-        res.status(500).json({ error });
-    }
-};
-
-// --create POST
-exports.createUser = async (req, res, next) => {
-    try {
-        const newUser = await User.create({ ...snakeKeys(req.body) });
-        res.status(201).json(newUser);
-    } catch (error) {
-        let errors = [];
-
-        switch (error.name) {
-            case 'SequelizeValidationError':
-                errors = error.errors.map((e) => e.message);
-                return res.status(400).json({ error: errors });
-            case 'SequelizeUniqueConstraintError':
-                errors = error.errors.map((e) => e.message);
-                return res.status(400).json({ error: errors });
-        }
-
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -123,7 +108,16 @@ exports.getUsers = async (req, res, next) => {
         const users = await User.findAll();
         res.status(200).json(users);
     } catch (error) {
-        res.status(500).json({ error });
+        switch (error.name) {
+            case 'SequelizeValidationError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+            case 'SequelizeUniqueConstraintError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+        }
+
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -138,7 +132,16 @@ exports.getUser = async (req, res, next) => {
 
         res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ error });
+        switch (error.name) {
+            case 'SequelizeValidationError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+            case 'SequelizeUniqueConstraintError':
+                errors = error.errors.map((e) => e.message);
+                return res.status(400).json({ error: errors });
+        }
+        
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -165,7 +168,7 @@ exports.updateUser = async (req, res, next) => {
                 return res.status(400).json({ error: errors });
         }
 
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -180,6 +183,6 @@ exports.deleteUser = async (req, res, next) => {
 
         res.status(200).json({ status });
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
