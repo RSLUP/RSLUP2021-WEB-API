@@ -21,7 +21,7 @@ exports.loggedIn = async function (req, res, next) {
         if (user) {
             if (user.user_type === "USER" ) { // Check authorization
                 let req_url = req.baseUrl + req.route.path;
-                // User cannot change user_type his/her self
+                // User cannot change user_type his/her own user_type
                 req.body.user_type = "USER";
                 if (req_url.includes("users/:id") && parseInt(req.params.id) !== user.id){
                     return res.status(403).send("Forbidden");

@@ -55,6 +55,7 @@ exports.userLogin = async (req, res, next) => {
             res.header("auth-token", token).send({
                 "first_name": user.first_name,
                 "last_name": user.last_name,
+                "gender": user.gender,
                 "email": user.email,
                 "user_type": user.user_type,
                 "token": token
